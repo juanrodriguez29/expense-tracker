@@ -83,27 +83,3 @@
   transform: scale(0.95);
 }
 
-@media (max-width: 480px) {
-  .expense-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .expense-item > .expense-name,
-  .expense-item > .expense-amount {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .expense-item > button {
-    width: auto; /* or full width if you want */
-  }
-
-  .expense-item > .edit-button,
-  .expense-item > .delete-button {
-    margin-left: 8px;
-  }
-}

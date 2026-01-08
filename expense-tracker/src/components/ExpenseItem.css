@@ -65,3 +65,35 @@
 .expense-item button:active {
   transform: scale(0.95);
 }
+
+
+@media (max-width: 480px) {
+  .expense-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;   /* 2 columns */
+    grid-template-rows: auto auto;    /* 2 rows */
+    gap: 8px 10px;
+    align-items: center;
+  }
+
+  .expense-name {
+    grid-column: 1 / 2;               /* first row, left column */
+    grid-row: 1;
+  }
+
+  .expense-amount {
+    grid-column: 2 / 3;               /* first row, right column */
+    grid-row: 1;
+    text-align: right;
+  }
+
+    .edit-button {
+    grid-column: 1 / 2;               /* second row, left */
+    grid-row: 2;
+  }
+
+  .delete-button {
+    grid-column: 2 / 3;               /* second row, right */
+    grid-row: 2;
+  }
+}
