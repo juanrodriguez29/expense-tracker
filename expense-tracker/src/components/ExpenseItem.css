@@ -1,0 +1,67 @@
+
+/*.expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  font-weight: 600;
+}*/
+
+.expense-item {
+  display: grid;
+  grid-template-columns: 1fr 90px auto auto;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 16px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.expense-name {
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.expense-amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.delete-button {
+  background: #e63946;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+  width: 72px;
+}
+
+.delete-button:hover {
+  background-color: #c5303f;
+}
+
+.edit-button {
+  background: #4f46e5;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+  width: 72px;
+}
+
+
+.edit-button:hover {
+  background-color: #4338ca;
+}
+
+.expense-item button:active {
+  transform: scale(0.95);
+}
