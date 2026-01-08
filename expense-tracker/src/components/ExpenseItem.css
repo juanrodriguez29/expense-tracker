@@ -87,13 +87,16 @@
     text-align: right;
   }
 
-    .edit-button {
+  .edit-button {
     grid-column: 1 / 2;               /* second row, left */
     grid-row: 2;
+    width: 100%;
+    
   }
 
   .delete-button {
     grid-column: 2 / 3;               /* second row, right */
     grid-row: 2;
+    width: 100%;
   }
 }
