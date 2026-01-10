@@ -30,7 +30,7 @@
   color: #1e293b;  
 }
 
-.modal input {
+.modal input, .modal select, .options {
   padding: 10px 12px;
   font-size: 1rem;
   border: 1px solid #cbd5e1;

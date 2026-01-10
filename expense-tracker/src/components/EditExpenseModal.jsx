@@ -3,14 +3,16 @@ import { createPortal } from "react-dom";
 
 import "./ExpenseModal.css";
 
-export function EditExpenseModal({ expense, onSave, onCancel }) {
+export function EditExpenseModal({ expense, onSave, onCancel, categories }) {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
 
   useEffect(() => {
     if (expense) {
       setTitle(expense.title);
       setAmount(expense.amount);
+      setCategory(expense.category)
     }
   }, [expense]);
 
@@ -30,6 +32,7 @@ export function EditExpenseModal({ expense, onSave, onCancel }) {
       ...expense,
       title,
       amount: Number(amount),
+      category,
     });
   };
 
@@ -52,6 +55,14 @@ export function EditExpenseModal({ expense, onSave, onCancel }) {
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Amount"
           />
+
+          <select value={category} onChange={e => setCategory(e.target.value)}>
+            <option>Select a category</option>
+            {categories.map(category => (
+              <option key={category.id} value={category.id}>
+                {category.label}
+              </option>))}
+          </select>
           <div className="modal-actions">
             <button className="save-button"
               onClick={(e) => {
