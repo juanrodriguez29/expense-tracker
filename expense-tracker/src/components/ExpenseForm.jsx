@@ -2,15 +2,15 @@ import { useState } from "react";
 
 import "./ExpenseForm.css";
 
-export function ExpenseForm({ onAddExpense, categories }) {
+export function ExpenseForm({ onAddExpense, categories, onClearFilter }) {
 
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
-  
+
 
   const valitateAmount = (e) => {
-    
+
     const value = e.target.value;
     const regex = /^\d*(\.\d{0,2})?$/;
     if (value === "" || value.startsWith("-") || !regex.test(value)) {
@@ -18,7 +18,7 @@ export function ExpenseForm({ onAddExpense, categories }) {
     };
 
     setAmount(value);
-  } 
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,6 +34,8 @@ export function ExpenseForm({ onAddExpense, categories }) {
 
     setTitle("");
     setAmount("");
+    setCategory("");
+    onClearFilter();
   };
 
 
@@ -42,14 +44,14 @@ export function ExpenseForm({ onAddExpense, categories }) {
       <input
         placeholder="Expense Name"
         value={title}
-        onChange = {e => setTitle(e.target.value)}
+        onChange={e => setTitle(e.target.value)}
       />
-      <input 
+      <input
         type="number"
         placeholder="Amount"
         value={amount}
-        onChange = {valitateAmount}
-      /> 
+        onChange={valitateAmount}
+      />
       <select className="category-select" value={category} onChange={e => setCategory(e.target.value)}>
         <option>Select a category</option>
         {categories.map(category => (
@@ -57,7 +59,7 @@ export function ExpenseForm({ onAddExpense, categories }) {
             {category.label}
           </option>))}
       </select>
-      <button type="submit">Add Expense</button> 
+      <button type="submit">Add Expense</button>
     </form>
   );
 }
