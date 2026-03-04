@@ -1,25 +1,21 @@
-import { useState } from 'react';
-import "./CategoryTotals.css";
 
-export function CategoryTotals({ expenses, categories, expensesToShow }) {
+export function CategoryTotals({ categoryTotals }) {
 
-  const totals = categories.map((category) => {
-    const forThisCategory = expenses.filter((expense) => expense.category === category.id).reduce((sum, expense) =>  sum +  Number(expense.amount), 0);
-    return forThisCategory;
-  });
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(value);
 
-  const combinedCategories = categories.map((category,  index) => {
-    return { ...category, total: totals[index] };
-  });
-
-  const filteredCategories = combinedCategories.filter((cat) => cat.total > 0);
+  if (categoryTotals.length === 0) {
+    return <p className="text-center text-slate-400 text-sm py-4">No expenses yet</p>;
+  }
 
   return (
-    <div className="category-totals">
-      {expensesToShow.length === 0
-        ? null
-        :filteredCategories.map((category) => <><span className="category-label">{category.label} :</span><span className="category-total">${category.total}</span></>)
-      }
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 md:items-start">
+      {categoryTotals.map((category) => (
+        <div key={category.id} className="flex justify-between items-center px-3 py-2 bg-slate-50 rounded-lg">
+          <span className="text-sm font-medium text-slate-600">{category.label}</span>
+          <span className="text-sm font-bold text-slate-800 tabular-nums">{formatCurrency(category.total)}</span>
+        </div>
+      ))}
     </div>
-  )
+  );
 }

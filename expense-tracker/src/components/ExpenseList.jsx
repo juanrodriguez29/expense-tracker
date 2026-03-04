@@ -1,13 +1,9 @@
 import { ExpenseItem } from "./ExpenseItem";
 
-import "./ExpenseList.css"
-
 export function ExpenseList({ expenses, onDelete, onEdit, categoryMap, onCategoryClick, expensesToShow, activeCategory }) {
   return (
     <ul className="expense-list">
-      {activeCategory !== null &&
-        (< button className="clear-filter" onClick={() => onCategoryClick(null)}>Clear</button>
-        )}
+      
       {expensesToShow.map((expense) => (
         <ExpenseItem
           key={expense.id}
@@ -20,3 +16,4 @@ export function ExpenseList({ expenses, onDelete, onEdit, categoryMap, onCategor
     </ul>
   );
 }
+
