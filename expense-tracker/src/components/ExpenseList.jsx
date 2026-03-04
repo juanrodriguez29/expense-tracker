@@ -1,5 +1,5 @@
 import { ExpenseItem } from "./ExpenseItem";
-
+pwd
 export function ExpenseList({ expenses, onDelete, onEdit, categoryMap, onCategoryClick, expensesToShow, activeCategory }) {
   return (
     <ul className="expense-list">
