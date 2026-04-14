@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { supabase } from './supabase';
 import { Balance } from './components/Balance';
 import { ExpenseForm } from './components/ExpenseForm';
 import { ExpenseList } from './components/ExpenseList';
@@ -25,7 +27,68 @@ const CATEGORY_MAP = Object.fromEntries(
   CATEGORIES.map(cat => [cat.id, cat.label])
 );
 
-export default function App() {
+function Home({ expenses, editingExpense, setEditingExpense, addExpense, deleteExpense, handleSaveEdit, categoryTotals, chartData, uniqueMonths, expensesToShow, selectedMonth, setSelectedMonth, activeCategory, setActiveCategory, clearFilters, handleLogout }) {
+  return (
+    <div className="min-h-screen bg-slate-50 px-4 py-8">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-semibold text-center text-slate-800 border-b-2 border-indigo-500 pb-3 mb-6">
+          Expense Tracker
+        </h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 md:items-start">
+          <div className="flex flex-col gap-4 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <Balance expenses={expenses} />
+            <ExpenseForm
+              onAddExpense={addExpense}
+              categories={CATEGORIES}
+              onClearFilter={() => setActiveCategory(null)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-4 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <CategoryPieChart data={chartData} />
+            <CategoryTotals categoryTotals={categoryTotals} />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <FilterBar
+            months={uniqueMonths}
+            categories={categoryTotals}
+            selectedMonth={selectedMonth}
+            selectedCategory={activeCategory}
+            onChangeMonth={setSelectedMonth}
+            onChangeCategory={setActiveCategory}
+            onClearFilters={clearFilters}
+          />
+          <ExpenseList
+            expenses={expenses}
+            onDelete={deleteExpense}
+            onEdit={setEditingExpense}
+            categoryMap={CATEGORY_MAP}
+            expensesToShow={expensesToShow}
+            onCategoryClick={setActiveCategory}
+            activeCategory={activeCategory}
+          />
+        </div>
+      </div>
+
+      {editingExpense && (
+        <EditExpenseModal
+          expense={editingExpense}
+          onSave={handleSaveEdit}
+          onCancel={() => setEditingExpense(null)}
+          categories={CATEGORIES}
+        />
+      )}
+    </div>
+  )
+};
+
+function AppRoutes() {
+
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
   const [expenses, setExpenses] = useState([]);
   const [editingExpense, setEditingExpense] = useState(null);
@@ -34,22 +97,73 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load expenses from the server when the app first opens
-useEffect(() => {
-  const loadExpenses = async () => {
-    try {
-      const response = await fetch(`${API}/expenses`);
-      if (!response.ok) throw new Error("Server error");
-      const data = await response.json();
-      setExpenses(data);
-    } catch (err) {
-      setError("Could not connect to server. Is it running?");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+        navigate('/');
+      } else {
+        navigate('/login');
+      }
+    }
+    checkUser();
+  }, []);
+
+
+  const signUp = async (email, password) => {
+    if (!email || !password) {
+      alert('Please enter both email and password.');
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      console.log('Supabase sign-up error:', error);
+      alert('Sign-up failed. Please try again.');
+    } else {
+      alert('Sign-up successful! Please log in.');
+      navigate('/login');
+    }
+  }
+
+  const handleLogin = async (email, password) => {
+    if (!email || !password) {
+      alert('Please enter both email and password.');
+      return;
+    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.log('Supabase login error:', error);
+      alert('Login failed. Please check your credentials and try again.');
+    } else {
+      navigate('/');
     }
   };
-  loadExpenses();
-}, []); // empty array means this runs once on mount
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
+  // Load expenses from the server when the app first opens
+  useEffect(() => {
+    const loadExpenses = async () => {
+      try {
+        const response = await fetch(`${API}/expenses`);
+        if (!response.ok) throw new Error("Server error");
+        const data = await response.json();
+        setExpenses(data);
+      } catch (err) {
+        setError("Could not connect to server. Is it running?");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadExpenses();
+  }, []); // empty array means this runs once on mount
+
 
   const totalsMap = expenses.reduce((acc, expense) => {
     if (!acc[expense.category]) acc[expense.category] = 0;
@@ -108,75 +222,59 @@ useEffect(() => {
 
   const clearFilters = () => { setActiveCategory(null); setSelectedMonth(null); };
 
-if (loading) {
-  return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <p className="text-slate-400 text-sm">Loading expenses...</p>
-    </div>
-  );
-}
-
-if (error) {
-  return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <p className="text-red-400 text-sm">{error}</p>
-    </div>
-  );
-}
-
-  return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-semibold text-center text-slate-800 border-b-2 border-indigo-500 pb-3 mb-6">
-          Expense Tracker
-        </h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 md:items-start">
-          <div className="flex flex-col gap-4 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <Balance expenses={expenses} />
-            <ExpenseForm
-              onAddExpense={addExpense}
-              categories={CATEGORIES}
-              onClearFilter={() => setActiveCategory(null)}
-            />
-          </div>
-
-          <div className="flex flex-col gap-4 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <CategoryPieChart data={chartData} />
-            <CategoryTotals categoryTotals={categoryTotals} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-          <FilterBar
-            months={uniqueMonths}
-            categories={categoryTotals}
-            selectedMonth={selectedMonth}
-            selectedCategory={activeCategory}
-            onChangeMonth={setSelectedMonth}
-            onChangeCategory={setActiveCategory}
-            onClearFilters={clearFilters}
-          />
-          <ExpenseList
-            expenses={expenses}
-            onDelete={deleteExpense}
-            onEdit={setEditingExpense}
-            categoryMap={CATEGORY_MAP}
-            expensesToShow={expensesToShow}
-            onCategoryClick={setActiveCategory}
-            activeCategory={activeCategory}
-          />
-        </div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <p className="text-slate-400 text-sm">Loading expenses...</p>
       </div>
+    );
+  }
 
-      {editingExpense && (
-        <EditExpenseModal
-          expense={editingExpense}
-          onSave={handleSaveEdit}
-          onCancel={() => setEditingExpense(null)}
-          categories={CATEGORIES}
-        />
-      )}
-    </div>
-  );
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <p className="text-red-400 text-sm">{error}</p>
+      </div>
+    );
+  }
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <Home
+            expenses={expenses}
+            editingExpense={editingExpense}
+            setEditingExpense={setEditingExpense}
+            addExpense={addExpense}
+            deleteExpense={deleteExpense}
+            handleSaveEdit={handleSaveEdit}
+            categoryTotals={categoryTotals}
+            chartData={chartData}
+            uniqueMonths={uniqueMonths}
+            expensesToShow={expensesToShow}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+            activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory}
+            clearFilters={clearFilters}
+            handleLogout={handleLogout}
+          />}
+      />
+      <Route path="/login" element={<Login handleLogin={handleLogin} />} />
+      <Route path="/signup" element={<SignUp handleSignUp={handleSignUp} />} />
+
+    </Routes>
+  )
+
+
+};
+
+export default function App() {
+
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  )
 }

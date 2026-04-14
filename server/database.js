@@ -32,7 +32,6 @@ if (isProduction) {
     )
   `).run();
 
-  // Wrap SQLite in a pg-compatible interface so index.js doesn't need to change
   pool = {
     query: (text, params) => {
       const stmt = db.prepare(text

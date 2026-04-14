@@ -16,4 +16,3 @@ export function ExpenseList({ expenses, onDelete, onEdit, categoryMap, onCategor
     </ul>
   );
 }
-
