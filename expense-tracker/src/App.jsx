@@ -1,6 +1,10 @@
+console.log('API URL:', import.meta.env.VITE_API_URL);
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { supabase } from './supabase';
+import { Login } from './pages/Login';
+import { SignUp } from './pages/SignUp';
 import { Balance } from './components/Balance';
 import { ExpenseForm } from './components/ExpenseForm';
 import { ExpenseList } from './components/ExpenseList';
@@ -111,8 +115,23 @@ function AppRoutes() {
     checkUser();
   }, []);
 
+    const handleLogin = async (email, password) => {
+      if (!email || !password) {
+        alert('Please enter both email and password.');
+        return;
+      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        console.log('Supabase login error:', error);
+        alert('Login failed. Please check your credentials and try again.');
+      } else {
+        navigate('/');
+      }
 
-  const signUp = async (email, password) => {
+    }
+
+
+  const handleSignUp = async (email, password) => {
     if (!email || !password) {
       alert('Please enter both email and password.');
       return;
@@ -128,19 +147,6 @@ function AppRoutes() {
     }
   }
 
-  const handleLogin = async (email, password) => {
-    if (!email || !password) {
-      alert('Please enter both email and password.');
-      return;
-    }
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      console.log('Supabase login error:', error);
-      alert('Login failed. Please check your credentials and try again.');
-    } else {
-      navigate('/');
-    }
-  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
