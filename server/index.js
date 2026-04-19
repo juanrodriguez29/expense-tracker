@@ -42,12 +42,13 @@ app.post("/expenses", async (req, res) => {
 app.put("/expenses/:id", async (req, res) => {
   try {
     const { title, amount, date, category } = req.body;
-    await pool.query(
+    const result = await pool.query(
       `UPDATE expenses SET title = $1, amount = $2, date = $3, category = $4
-       WHERE id = $5`,
+       WHERE id = $5 RETURNING *`,
       [title, amount, date, category, req.params.id]
     );
-    res.json({ id: req.params.id, title, amount, date, category });
+    console.log('Updated rows:', result.rows)
+    res.json(result.rows[0]);
   } catch (err) {
     console.error('PUT error:', err.message)
     res.status(500).json({ error: err.message });
@@ -56,7 +57,11 @@ app.put("/expenses/:id", async (req, res) => {
 
 app.delete("/expenses/:id", async (req, res) => {
   try {
-    await pool.query("DELETE FROM expenses WHERE id = $1", [req.params.id]);
+    const result = await pool.query(
+      "DELETE FROM expenses WHERE id = $1 RETURNING *", 
+      [req.params.id]
+    );
+    console.log('Deleted rows:', result.rows)
     res.status(204).send();
   } catch (err) {
     console.error('DELETE error:', err.message)
