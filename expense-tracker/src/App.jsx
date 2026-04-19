@@ -36,15 +36,15 @@ function Home({ expenses, editingExpense, setEditingExpense, addExpense, deleteE
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-5xl mx-auto">
         <div className="relative flex items-center justify-center border-b-2 border-indigo-500 pb-3 mb-6">
-  <h1 className="text-3xl font-semibold text-slate-800">
-    Expense Tracker
-  </h1>
-  <button 
-    onClick={handleLogout}
-    className="absolute right-0 text-sm text-slate-500 hover:text-slate-700 transition-colors">
-    Log out
-  </button>
-</div>
+          <h1 className="text-3xl font-semibold text-slate-800">
+            Expense Tracker
+          </h1>
+          <button
+            onClick={handleLogout}
+            className="absolute right-0 text-sm text-slate-500 hover:text-slate-700 transition-colors">
+            Log out
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 md:items-start">
           <div className="flex flex-col gap-4 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
@@ -180,29 +180,26 @@ function AppRoutes() {
     loadExpenses();
   }, []);*/ // empty array means this runs once on mount
 
-  useEffect(() => {
-    if (!user) return  //
-    const loadExpenses = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        const token = session?.access_token
-
-        const response = await fetch(`${API}/expenses`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (!response.ok) throw new Error("Server error");
-        const data = await response.json();
-        setExpenses(data);
-      } catch (err) {
-        setError("Could not connect to server. Is it running?");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadExpenses();
-  }, [user]);
+useEffect(() => {
+  if (!user || !token) return
+  const loadExpenses = async () => {
+    try {
+      const response = await fetch(`${API}/expenses`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error("Server error");
+      const data = await response.json();
+      setExpenses(data);
+    } catch (err) {
+      setError("Could not connect to server. Is it running?");
+    } finally {
+      setLoading(false);
+    }
+  };
+  loadExpenses();
+}, [user, token]);
 
   const totalsMap = expenses.reduce((acc, expense) => {
     if (!acc[expense.category]) acc[expense.category] = 0;
