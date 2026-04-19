@@ -181,12 +181,17 @@ function AppRoutes() {
   }, []);*/ // empty array means this runs once on mount
 
 useEffect(() => {
-  if (!user || !token) return
+  if (!user) return
   const loadExpenses = async () => {
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const currentToken = session?.access_token
+      
+      if (!currentToken) return // no token, don't fetch
+      
       const response = await fetch(`${API}/expenses`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${currentToken}`
         }
       });
       if (!response.ok) throw new Error("Server error");
@@ -199,7 +204,7 @@ useEffect(() => {
     }
   };
   loadExpenses();
-}, [user, token]);
+}, [user]);
 
   const totalsMap = expenses.reduce((acc, expense) => {
     if (!acc[expense.category]) acc[expense.category] = 0;
