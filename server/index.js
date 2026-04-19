@@ -27,12 +27,12 @@ app.get("/expenses", async (req, res) => {
 app.post("/expenses", async (req, res) => {
   try {
     const { title, amount, date, category } = req.body;
-    await pool.query(
+    const result = await pool.query(
       `INSERT INTO expenses (title, amount, date, category)
-       VALUES ($1, $2, $3, $4)`,
+       VALUES ($1, $2, $3, $4) RETURNING *`,
       [title, amount, date, category]
     );
-    res.status(201).json({ title, amount, date, category });
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('POST error:', err.message)
     res.status(500).json({ error: err.message });
