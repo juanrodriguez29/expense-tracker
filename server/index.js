@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -20,7 +19,8 @@ app.get("/expenses", async (req, res) => {
     const result = await pool.query("SELECT * FROM expenses ORDER BY date DESC");
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch expenses" });
+    console.error('GET error:', err.message)
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -34,7 +34,8 @@ app.post("/expenses", async (req, res) => {
     );
     res.status(201).json({ id, title, amount, date, category });
   } catch (err) {
-    res.status(500).json({ error: "Failed to save expense" });
+    console.error('POST error:', err.message)
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -48,7 +49,8 @@ app.put("/expenses/:id", async (req, res) => {
     );
     res.json({ id: req.params.id, title, amount, date, category });
   } catch (err) {
-    res.status(500).json({ error: "Failed to update expense" });
+    console.error('PUT error:', err.message)
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -57,7 +59,8 @@ app.delete("/expenses/:id", async (req, res) => {
     await pool.query("DELETE FROM expenses WHERE id = $1", [req.params.id]);
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ error: "Failed to delete expense" });
+    console.error('DELETE error:', err.message)
+    res.status(500).json({ error: err.message });
   }
 });
 
