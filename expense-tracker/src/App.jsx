@@ -35,9 +35,16 @@ function Home({ expenses, editingExpense, setEditingExpense, addExpense, deleteE
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-semibold text-center text-slate-800 border-b-2 border-indigo-500 pb-3 mb-6">
-          Expense Tracker
-        </h1>
+        <div className="relative flex items-center justify-center border-b-2 border-indigo-500 pb-3 mb-6">
+  <h1 className="text-3xl font-semibold text-slate-800">
+    Expense Tracker
+  </h1>
+  <button 
+    onClick={handleLogout}
+    className="absolute right-0 text-sm text-slate-500 hover:text-slate-700 transition-colors">
+    Log out
+  </button>
+</div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 md:items-start">
           <div className="flex flex-col gap-4 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
@@ -117,21 +124,21 @@ function AppRoutes() {
     checkUser();
   }, []);
 
-    const handleLogin = async (email, password) => {
-      if (!email || !password) {
-        alert('Please enter both email and password.');
-        return;
-      }
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        console.log('Supabase login error:', error);
-        alert('Login failed. Please check your credentials and try again.');
-      } else {
-        setToken(data.session.access_token);
-        navigate('/');
-      }
-
+  const handleLogin = async (email, password) => {
+    if (!email || !password) {
+      alert('Please enter both email and password.');
+      return;
     }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.log('Supabase login error:', error);
+      alert('Login failed. Please check your credentials and try again.');
+    } else {
+      setToken(data.session.access_token);
+      navigate('/');
+    }
+
+  }
 
 
   const handleSignUp = async (email, password) => {
@@ -174,27 +181,27 @@ function AppRoutes() {
   }, []);*/ // empty array means this runs once on mount
 
   useEffect(() => {
-  const loadExpenses = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token
-      
-      const response = await fetch(`${API}/expenses`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) throw new Error("Server error");
-      const data = await response.json();
-      setExpenses(data);
-    } catch (err) {
-      setError("Could not connect to server. Is it running?");
-    } finally {
-      setLoading(false);
-    }
-  };
-  loadExpenses();
-}, []);
+    const loadExpenses = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const token = session?.access_token
+
+        const response = await fetch(`${API}/expenses`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) throw new Error("Server error");
+        const data = await response.json();
+        setExpenses(data);
+      } catch (err) {
+        setError("Could not connect to server. Is it running?");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadExpenses();
+  }, []);
 
   const totalsMap = expenses.reduce((acc, expense) => {
     if (!acc[expense.category]) acc[expense.category] = 0;
@@ -223,42 +230,42 @@ function AppRoutes() {
     ? monthFilteredExpenses.filter(exp => exp.category === activeCategory)
     : monthFilteredExpenses;
 
-const addExpense = async (expense) => {
-  const response = await fetch(`${API}/expenses`, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify(expense)
-  });
-  const data = await response.json();
-  setExpenses(prev => [...prev, data]); // use returned data with real id
-};
+  const addExpense = async (expense) => {
+    const response = await fetch(`${API}/expenses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(expense)
+    });
+    const data = await response.json();
+    setExpenses(prev => [...prev, data]); // use returned data with real id
+  };
 
   const deleteExpense = async (id) => {
-  await fetch(`${API}/expenses/${id}`, {
-    method: "DELETE",
-    headers: { "Authorization": `Bearer ${token}` }
-  });
-  setExpenses(prev => prev.filter(exp => exp.id !== id));
-};
+    await fetch(`${API}/expenses/${id}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    setExpenses(prev => prev.filter(exp => exp.id !== id));
+  };
 
 
-const handleSaveEdit = async (updatedExpense) => {
-  await fetch(`${API}/expenses/${updatedExpense.id}`, {
-    method: "PUT",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify(updatedExpense)
-  });
-  setExpenses(prev =>
-    prev.map(exp => exp.id === updatedExpense.id ? updatedExpense : exp)
-  );
-  setEditingExpense(null);
-};
+  const handleSaveEdit = async (updatedExpense) => {
+    await fetch(`${API}/expenses/${updatedExpense.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(updatedExpense)
+    });
+    setExpenses(prev =>
+      prev.map(exp => exp.id === updatedExpense.id ? updatedExpense : exp)
+    );
+    setEditingExpense(null);
+  };
 
   const clearFilters = () => { setActiveCategory(null); setSelectedMonth(null); };
 
