@@ -181,6 +181,7 @@ function AppRoutes() {
   }, []);*/ // empty array means this runs once on mount
 
   useEffect(() => {
+    if (!user) return  //
     const loadExpenses = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
@@ -201,7 +202,7 @@ function AppRoutes() {
       }
     };
     loadExpenses();
-  }, []);
+  }, [user]);
 
   const totalsMap = expenses.reduce((acc, expense) => {
     if (!acc[expense.category]) acc[expense.category] = 0;
