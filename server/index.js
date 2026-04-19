@@ -1,7 +1,11 @@
+
+
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const pool = require("./database");
+const supabase = require("./supabase");
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,7 +18,17 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 
-app.get("/expenses", async (req, res) => {
+const authenticateToken = async (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({error: 'No token provided.'});
+  const {data: {user}, error} = await supabase.auth.getUser(token);
+  if (error || !user) return res.status(401).json({error: 'Invalid token.'});
+  req.user = user;
+  next();
+
+};
+
+app.get("/expenses", authenticateToken, async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM expenses ORDER BY date DESC");
     res.json(result.rows);
@@ -24,7 +38,7 @@ app.get("/expenses", async (req, res) => {
   }
 });
 
-app.post("/expenses", async (req, res) => {
+app.post("/expenses", authenticateToken, async (req, res) => {
   try {
     const { title, amount, date, category } = req.body;
     const result = await pool.query(
@@ -39,7 +53,7 @@ app.post("/expenses", async (req, res) => {
   }
 });
 
-app.put("/expenses/:id", async (req, res) => {
+app.put("/expenses/:id", authenticateToken, async (req, res) => {
   try {
     const { title, amount, date, category } = req.body;
     const result = await pool.query(
@@ -55,7 +69,7 @@ app.put("/expenses/:id", async (req, res) => {
   }
 });
 
-app.delete("/expenses/:id", async (req, res) => {
+app.delete("/expenses/:id", authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
       "DELETE FROM expenses WHERE id = $1 RETURNING *", 
