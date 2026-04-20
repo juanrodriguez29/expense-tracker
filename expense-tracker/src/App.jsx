@@ -98,6 +98,7 @@ function Home({ expenses, editingExpense, setEditingExpense, addExpense, deleteE
 
 function AppRoutes() {
 
+  console.log('AppRoutes rendered')
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
@@ -111,6 +112,7 @@ function AppRoutes() {
 
   useEffect(() => {
     const checkUser = async () => {
+      console.log('checkUser running')
       const { data: { session } } = await supabase.auth.getSession();
       const currentUser = session?.user ?? null;
       setUser(currentUser);
