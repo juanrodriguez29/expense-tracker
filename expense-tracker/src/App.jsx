@@ -110,7 +110,7 @@ function AppRoutes() {
   const [error, setError] = useState(null);
   const [token, setToken] = useState(null);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const checkUser = async () => {
       console.log('checkUser running')
       const { data: { session } } = await supabase.auth.getSession();
@@ -124,7 +124,30 @@ function AppRoutes() {
       setToken(session?.access_token);
     }
     checkUser();
-  }, []);
+  }, []);*/
+
+  useEffect(() => {
+    const checkUser = async () => {
+      console.log('checkUser running')
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('session:', session)
+        console.log('session error:', error)
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+        if (currentUser) {
+          navigate('/');
+        } else {
+          navigate('/login');
+        }
+        setToken(session?.access_token);
+      } catch (err) {
+        console.log('checkUser error:', err.message)
+      }
+    }
+    checkUser();
+    setLoading(false);
+  }, [])
 
   const handleLogin = async (email, password) => {
     if (!email || !password) {
@@ -182,31 +205,31 @@ function AppRoutes() {
     loadExpenses();
   }, []);*/ // empty array means this runs once on mount
 
-useEffect(() => {
-  if (!user) return
-  const loadExpenses = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const currentToken = session?.access_token
-      
-      if (!currentToken) return // no token, don't fetch
-      
-      const response = await fetch(`${API}/expenses`, {
-        headers: {
-          'Authorization': `Bearer ${currentToken}`
-        }
-      });
-      if (!response.ok) throw new Error("Server error");
-      const data = await response.json();
-      setExpenses(data);
-    } catch (err) {
-      setError("Could not connect to server. Is it running?");
-    } finally {
-      setLoading(false);
-    }
-  };
-  loadExpenses();
-}, [user]);
+  useEffect(() => {
+    if (!user) return
+    const loadExpenses = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const currentToken = session?.access_token
+
+        if (!currentToken) return // no token, don't fetch
+
+        const response = await fetch(`${API}/expenses`, {
+          headers: {
+            'Authorization': `Bearer ${currentToken}`
+          }
+        });
+        if (!response.ok) throw new Error("Server error");
+        const data = await response.json();
+        setExpenses(data);
+      } catch (err) {
+        setError("Could not connect to server. Is it running?");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadExpenses();
+  }, [user]);
 
   const totalsMap = expenses.reduce((acc, expense) => {
     if (!acc[expense.category]) acc[expense.category] = 0;
