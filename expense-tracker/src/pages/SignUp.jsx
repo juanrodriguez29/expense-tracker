@@ -13,7 +13,7 @@ export function SignUp ( {handleSignUp} ) {
     setPassword('');
   }
 
-   const inputClass = "w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition";
+   const inputClass = "w-full px-3 py-2 text-base rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition";
 
   return (
       <section id="SignUp" className="px-6 bg-slate-50 flex flex-col items-center justify-center pb-24 min-h-screen">

@@ -12,7 +12,7 @@ export function Login({ handleLogin }) {
     setPassword('');
   }
 
-  const inputClass = "w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition";
+  const inputClass = "w-full px-3 py-2 text-base rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition";
 
 
   return (
