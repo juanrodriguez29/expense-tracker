@@ -31,7 +31,9 @@ const authenticateToken = async (req, res, next) => {
 
 app.get("/expenses", authenticateToken, async (req, res) => {
   try {
+    console.log('Fetching expenses for user:', req.user.id)
     const result = await pool.query("SELECT * FROM expenses WHERE user_id = $1 ORDER BY date DESC", [req.user.id]);
+    console.log('Found expenses:', result.rows.length)
     res.json(result.rows);
   } catch (err) {
     console.error('GET error:', err.message)
