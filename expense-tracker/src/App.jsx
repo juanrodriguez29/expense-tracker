@@ -27,6 +27,7 @@ const CATEGORIES = [
   { id: "other", label: "Other" },
 ];
 
+
 const CATEGORY_MAP = Object.fromEntries(
   CATEGORIES.map(cat => [cat.id, cat.label])
 );
